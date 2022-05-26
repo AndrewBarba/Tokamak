@@ -16,14 +16,13 @@ import TokamakShim
 
 struct TestView: View {
   @State private var count = 0
-  @State private var n = ""
   var body: some View {
     VStack {
       Text("\(count)")
         .padding()
       HStack {
         if count > 0 {
-          Button("Decrease") {
+          Button("Decrement") {
             self.count -= 1
           }
         }
@@ -31,8 +30,6 @@ struct TestView: View {
           self.count += 1
         }
       }
-      Text("\(n)")
-      TextField("num", text: $n)
     }
   }
 }

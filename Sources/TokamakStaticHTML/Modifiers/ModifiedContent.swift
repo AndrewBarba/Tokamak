@@ -59,8 +59,11 @@ extension ModifiedContent: _HTMLPrimitive where Content: View, Modifier: ViewMod
   }
 }
 
-@_spi(TokamakStaticHTML) extension ModifiedContent: HTMLConvertible where Content: View {
-  public var tag: String { "div" }
-  public var attributes: [HTMLAttribute: String] { [:] }
-  public var innerHTML: String? { nil }
+@_spi(TokamakStaticHTML) extension ModifiedContent: HTMLConvertible where Content: View,
+  Modifier: HTMLConvertible
+{
+  public var tag: String { modifier.tag }
+  public var includeAttributes: Bool { modifier.includeAttributes }
+  public var attributes: [HTMLAttribute: String] { modifier.attributes }
+  public var innerHTML: String? { modifier.innerHTML }
 }

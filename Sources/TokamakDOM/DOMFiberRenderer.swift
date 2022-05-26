@@ -50,7 +50,7 @@ public extension DOMElement.Content {
   init<V>(from primitiveView: V) where V: View {
     guard let primitiveView = primitiveView as? HTMLConvertible else { fatalError() }
     tag = primitiveView.tag
-    attributes = primitiveView.attributes
+    attributes = primitiveView.includeAttributes ? primitiveView.attributes : [:]
     innerHTML = primitiveView.innerHTML
 
     if let primitiveView = primitiveView as? DOMNodeConvertible {

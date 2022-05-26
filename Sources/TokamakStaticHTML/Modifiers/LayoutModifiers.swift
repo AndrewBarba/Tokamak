@@ -133,6 +133,12 @@ extension _PaddingLayout: DOMViewModifier {
   }
 }
 
+@_spi(TokamakStaticHTML) extension _PaddingLayout: HTMLConvertible {
+  public var tag: String { "div" }
+  public var includeAttributes: Bool { false }
+  public var innerHTML: String? { nil }
+}
+
 extension _ShadowEffect._Resolved: DOMViewModifier {
   public var attributes: [HTMLAttribute: String] {
     [

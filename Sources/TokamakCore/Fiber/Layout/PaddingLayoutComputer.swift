@@ -17,31 +17,58 @@
 
 import Foundation
 
+private extension EdgeInsets {
+  func size(with edges: Edge.Set) -> CGSize {
+    .init(
+      width: (edges.contains(.leading) ? leading : 0) +
+        (edges.contains(.trailing) ? trailing : 0),
+      height: (edges.contains(.top) ? top : 0) + (edges.contains(.bottom) ? bottom : 0)
+    )
+  }
+}
+
 /// A `LayoutComputer` that applies padding to its children.
 final class PaddingLayoutComputer: LayoutComputer {
   let proposedSize: CGSize
+  let edges: Edge.Set
+  let insets: EdgeInsets
+  let insetSize: CGSize
 
-  init(proposedSize: CGSize) {
+  init(proposedSize: CGSize, edges: Edge.Set, insets: EdgeInsets?) {
     self.proposedSize = proposedSize
+    self.edges = edges
+    let insets = insets ?? EdgeInsets(_all: 10)
+    self.insets = insets
+    insetSize = insets.size(with: edges)
   }
 
   func proposeSize<V>(for child: V, at index: Int, in context: LayoutContext) -> CGSize
     where V: View
   {
-    proposedSize
+    .init(
+      width: proposedSize.width - insetSize.width,
+      height: proposedSize.height - insetSize.height
+    )
   }
 
   func position(_ child: LayoutContext.Child, in context: LayoutContext) -> CGPoint {
-    .zero
+    .init(
+      x: edges.contains(.leading) ? insets.leading : 0,
+      y: edges.contains(.top) ? insets.top : 0
+    )
   }
 
   func requestSize(in context: LayoutContext) -> CGSize {
-    context.children.reduce(CGSize.zero) {
+    let childSize = context.children.reduce(CGSize.zero) {
       .init(
         width: max($0.width, $1.dimensions.width),
         height: max($0.height, $1.dimensions.height)
       )
     }
+    return .init(
+      width: childSize.width + insetSize.width,
+      height: childSize.height + insetSize.height
+    )
   }
 }
 
@@ -50,7 +77,11 @@ public extension _PaddingLayout {
     .init(
       inputs: inputs
     ) { proposedSize in
-      PaddingLayoutComputer(proposedSize: proposedSize)
+      PaddingLayoutComputer(
+        proposedSize: proposedSize,
+        edges: inputs.view.edges,
+        insets: inputs.view.insets
+      )
     }
   }
 }

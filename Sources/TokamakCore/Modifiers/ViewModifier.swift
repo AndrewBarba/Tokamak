@@ -16,6 +16,13 @@ public protocol ViewModifier {
   typealias Content = _ViewModifier_Content<Self>
   associatedtype Body: View
   func body(content: Content) -> Self.Body
+  static func _makeView(_ inputs: ViewInputs<Self>) -> ViewOutputs
+}
+
+public extension ViewModifier {
+  static func _makeView(_ inputs: ViewInputs<Self>) -> ViewOutputs {
+    .init(inputs: inputs)
+  }
 }
 
 public struct _ViewModifier_Content<Modifier>: View

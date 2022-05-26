@@ -89,12 +89,14 @@ public final class HTMLElement: FiberElement, CustomStringConvertible {
 }
 
 @_spi(TokamakStaticHTML) public protocol HTMLConvertible {
+  var shouldRender: Bool { get }
   var tag: String { get }
   var attributes: [HTMLAttribute: String] { get }
   var innerHTML: String? { get }
 }
 
 public extension HTMLConvertible {
+  @_spi(TokamakStaticHTML) var shouldRender: Bool { true }
   @_spi(TokamakStaticHTML) var innerHTML: String? { nil }
 }
 
@@ -144,7 +146,8 @@ public struct StaticHTMLFiberRenderer: FiberRenderer {
   }
 
   public static func isPrimitive<V>(_ view: V) -> Bool where V: View {
-    view is HTMLConvertible
+    guard let convertible = view as? HTMLConvertible else { return false }
+    return convertible.shouldRender
   }
 
   public func commit(_ mutations: [Mutation<Self>]) {

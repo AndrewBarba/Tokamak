@@ -18,7 +18,7 @@
 import Foundation
 
 /// Data passed to `_makeView` to create the `ViewOutputs` used in reconciling/rendering.
-public struct ViewInputs<V: View> {
+public struct ViewInputs<V> {
   let view: V
   let environment: EnvironmentBox
 }
@@ -43,7 +43,7 @@ final class EnvironmentBox {
 }
 
 extension ViewOutputs {
-  init<V: View>(
+  init<V>(
     inputs: ViewInputs<V>,
     environment: EnvironmentValues? = nil,
     preferences: _PreferenceStore? = nil,
@@ -68,12 +68,14 @@ public extension View {
 
 public extension ModifiedContent where Content: View, Modifier: ViewModifier {
   static func _makeView(_ inputs: ViewInputs<Self>) -> ViewOutputs {
-    // Update the environment if needed.
-    var environment = inputs.environment.environment
-    if let environmentWriter = inputs.view.modifier as? EnvironmentModifier {
-      environmentWriter.modifyEnvironment(&environment)
-    }
-    return .init(inputs: inputs, environment: environment)
+    let modifierOutputs = Modifier
+      ._makeView(.init(view: inputs.view.modifier, environment: inputs.environment))
+    return .init(
+      inputs: inputs,
+      environment: modifierOutputs.environment.environment,
+      preferences: modifierOutputs.preferences,
+      layoutComputer: { proposedSize in modifierOutputs.makeLayoutComputer(proposedSize) }
+    )
   }
 
   func _visitChildren<V>(_ visitor: V) where V: ViewVisitor {

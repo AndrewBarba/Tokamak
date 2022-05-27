@@ -18,17 +18,35 @@ struct TestView: View {
   @State private var count = 0
   var body: some View {
     VStack {
-      Text("\(count)")
+      Count(count: count)
+      Actions(count: $count)
+    }
+  }
+
+  struct Count: View {
+    let count: Int
+
+    var body: some View {
+      Text("Count: \(count)")
         .padding()
+    }
+  }
+
+  struct Actions: View {
+    @Binding var count: Int
+
+    var body: some View {
       HStack {
         if count > 0 {
           Button("Decrement") {
             self.count -= 1
           }
+          .padding()
         }
         Button("Increment") {
           self.count += 1
         }
+        .padding()
       }
     }
   }
